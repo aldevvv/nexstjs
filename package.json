@@ -1,6 +1,6 @@
 {
   "name": "nexstjs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Next.js + NestJS scaffold with shadcn/ui and opinionated deps",
   "type": "module",
   "bin": {
