@@ -7,7 +7,7 @@ import chalk from "chalk"
 import ora from "ora"
 import boxen from "boxen"
 import figlet from "figlet"
-import { confirm, select } from "@inquirer/prompts"
+import { confirm } from "@inquirer/prompts"
 
 const program = new Command()
 
@@ -16,15 +16,21 @@ program
   .argument("<project-name>")
   .option("--pm <pm>", "package manager: pnpm|npm", "pnpm")
   .option("--no-ux", "disable interactive UI")
+  .option("--no-alias", "disable import alias (@/*)")
   .parse()
 
 const projectName = program.args[0]
 const opts = program.opts()
 const pm = opts.pm
+const useAlias = opts.alias !== false
 
 const root = path.resolve(process.cwd(), projectName)
 const feDir = path.join(root, "frontend")
 const beDir = path.join(root, "backend")
+
+const FRONTEND_PORT = 3000
+const BACKEND_PORT = 4000
+const IMPORT_ALIAS = "@/*"
 
 async function sh(cmd, args, cwd, hideOutput = false) {
   const options = { 
@@ -140,8 +146,8 @@ async function run() {
   const usePnpm = pm === "pnpm"
   const pmArgs = usePnpm ? ["--use-pnpm"] : ["--use-npm"]
 
-  let useSrcDir = false
-  let importAlias = "@/*"
+  const useSrcDir = true
+  const importAlias = useAlias ? IMPORT_ALIAS : ""
 
   if (opts.ux) {
     const startConfirm = await confirm({ 
@@ -155,19 +161,6 @@ async function run() {
       console.log("")
       process.exit(0)
     }
-
-    useSrcDir = await confirm({ message: chalk.greenBright("Use src/ Directory?"), default: false })
-
-    const aliasChoice = await select({
-      message: chalk.greenBright("Import Alias?"),
-      choices: [
-        { name: "@/*", value: "@/*" },
-        { name: "No Alias", value: "" }
-      ],
-      default: "@/*",
-    })
-
-    importAlias = aliasChoice
   }
 
   await fs.ensureDir(root)
@@ -288,16 +281,147 @@ async function run() {
     await sh("npx", ["prisma", "init"], beDir, true)
   })
 
-  const rootPkg = {
-    name: projectName,
-    private: true,
-    scripts: {
-      "dev:frontend": usePnpm ? "pnpm -C frontend dev" : "npm --prefix frontend run dev",
-      "dev:backend": usePnpm ? "pnpm -C backend start:dev" : "npm --prefix backend run start:dev"
+  await step("Configuring Backend Port", async () => {
+    const mainTsPath = path.join(beDir, "src", "main.ts")
+    
+    if (!await fs.pathExists(mainTsPath)) {
+      throw new Error("backend/src/main.ts not found - NestJS scaffold may have failed")
     }
-  }
+    
+    let mainContent = await fs.readFile(mainTsPath, "utf8")
+    const originalContent = mainContent
+    
+    if (mainContent.includes("await app.listen(3000);")) {
+      mainContent = mainContent.replace(
+        "await app.listen(3000);",
+        `await app.listen(Number(process.env.PORT) || ${BACKEND_PORT});`
+      )
+    } else {
+      const listenMatch = mainContent.match(/await app\.listen\(([\s\S]*?)\);/)
+      
+      if (listenMatch) {
+        const argsContent = listenMatch[1]
+        
+        if (argsContent.includes(",")) {
+          console.log("")
+          console.log(chalk.yellow("⚠ WARNING: Backend main.ts uses multi-argument app.listen()"))
+          console.log(chalk.dim("  The template binds to a specific host or has custom config."))
+          console.log(chalk.dim("  Please ensure your app reads PORT from process.env manually."))
+          console.log("")
+          return 
+        } else {
+          mainContent = mainContent.replace(
+            /await app\.listen\(([\s\S]*?)\);/,
+            `await app.listen(Number(process.env.PORT) || ${BACKEND_PORT});`
+          )
+        }
+      } else {
+        console.log("")
+        console.log(chalk.yellow("⚠ WARNING: await app.listen(...) not found in backend/src/main.ts"))
+        console.log(chalk.dim("  Please ensure your app reads PORT from process.env manually."))
+        console.log("")
+        return
+      }
+    }
+    
+    if (mainContent !== originalContent) {
+      await fs.writeFile(mainTsPath, mainContent, "utf8")
+    }
+  })
 
-  await fs.writeJson(path.join(root, "package.json"), rootPkg, { spaces: 2 })
+  await step("Generating Backend .env.example", async () => {
+    const envExample = `# Server Configuration
+NODE_ENV=development
+PORT=${BACKEND_PORT}
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRES_IN=7d
+
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/mydb?schema=public
+SUPABASE_DB_DIRECT_URL=postgresql://postgres:<PASSWORD>@db.<PROJECT_REF>.supabase.co:5432/postgres?sslmode=require
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:${FRONTEND_PORT}
+
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=120
+`
+    await fs.writeFile(path.join(beDir, ".env.example"), envExample, "utf8")
+  })
+
+  await step("Generating Frontend .env.local.example", async () => {
+    const envExample = `# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:${BACKEND_PORT}
+
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=${projectName}
+NEXT_PUBLIC_APP_ENV=development
+
+# Optional: Sentry DSN for Error Tracking
+# NEXT_PUBLIC_SENTRY_DSN=
+`
+    await fs.writeFile(path.join(feDir, ".env.local.example"), envExample, "utf8")
+  })
+
+  await step("Creating Root Package Configuration", async () => {
+    const rootPkg = {
+      name: projectName,
+      private: true,
+      scripts: {
+        "dev": usePnpm 
+          ? "concurrently \"pnpm -C frontend dev\" \"pnpm -C backend start:dev\"" 
+          : "concurrently \"npm --prefix frontend run dev\" \"npm --prefix backend run start:dev\"",
+        "dev:web": usePnpm ? "pnpm -C frontend dev" : "npm --prefix frontend run dev",
+        "dev:api": usePnpm ? "pnpm -C backend start:dev" : "npm --prefix backend run start:dev",
+        "build": usePnpm 
+          ? "pnpm -C frontend build && pnpm -C backend build" 
+          : "npm --prefix frontend run build && npm --prefix backend run build",
+        "build:web": usePnpm ? "pnpm -C frontend build" : "npm --prefix frontend run build",
+        "build:api": usePnpm ? "pnpm -C backend build" : "npm --prefix backend run build",
+        "start:web": usePnpm 
+          ? `pnpm -C frontend start -- -p ${FRONTEND_PORT}` 
+          : `npm --prefix frontend run start -- -p ${FRONTEND_PORT}`,
+        "start:api": usePnpm ? "pnpm -C backend start:prod" : "npm --prefix backend run start:prod"
+      },
+      devDependencies: {
+        "concurrently": "latest"
+      }
+    }
+    await fs.writeJson(path.join(root, "package.json"), rootPkg, { spaces: 2 })
+  })
+
+  await step("Creating Project Contract (nexst.json)", async () => {
+    const contract = {
+      name: projectName,
+      apps: {
+        web: {
+          path: "frontend",
+          port: FRONTEND_PORT,
+          health: "/"
+        },
+        api: {
+          path: "backend",
+          port: BACKEND_PORT,
+          health: "/health"
+        }
+      },
+      packageManager: pm,
+      node: "20"
+    }
+    await fs.writeJson(path.join(root, "nexst.json"), contract, { spaces: 2 })
+  })
+
+  await step("Installing Root Dependencies", async () => {
+    await sh(pm, ["install"], root, true)
+  })
 
   console.log("")
   console.log(chalk.hex("#00ff41")("━".repeat(60)))
@@ -314,17 +438,24 @@ async function run() {
     }
   ))
   
-  const frontendDevCmd = usePnpm ? "pnpm -C frontend dev" : "npm --prefix frontend run dev"
-  const backendDevCmd = usePnpm ? "pnpm -C backend start:dev" : "npm --prefix backend run start:dev"
+  const devCmd = usePnpm ? "pnpm dev" : "npm run dev"
 
   console.log(chalk.greenBright.bold("  ⚡ Quick Start"))
   console.log("")
   console.log(chalk.dim("  1. Navigate to Your Project"))
   console.log(chalk.hex("#00ff41")(`     cd ${projectName}`))
   console.log("")
-  console.log(chalk.dim("  2. Run Development Servers"))
-  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Frontend: ") + chalk.hex("#00ff41")(frontendDevCmd))
-  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Backend:  ") + chalk.hex("#00ff41")(backendDevCmd))
+  console.log(chalk.dim("  2. Run Development Servers (Both Frontend + Backend)"))
+  console.log(chalk.hex("#00ff41")(`     ${devCmd}`))
+  console.log("")
+  console.log(chalk.dim("  Your Services:"))
+  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Frontend: ") + chalk.hex("#00ff41")(`http://localhost:${FRONTEND_PORT}`))
+  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Backend:  ") + chalk.hex("#00ff41")(`http://localhost:${BACKEND_PORT}`))
+  console.log("")
+  console.log(chalk.dim("  Environment Files:"))
+  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Frontend: ") + chalk.hex("#ffa500")("frontend/.env.local.example"))
+  console.log(chalk.greenBright("     ▸ ") + chalk.dim("Backend:  ") + chalk.hex("#ffa500")("backend/.env.example"))
+  console.log(chalk.dim("     Copy these to .env.local and .env respectively"))
   console.log("")
   console.log(chalk.hex("#00ff41")("━".repeat(60)))
   console.log("")
