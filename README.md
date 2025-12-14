@@ -1,8 +1,6 @@
-# nexstjs
+> Opinionated NextJS + NestJS Full-Stack Project Scaffold — Zero Config, One Command.
 
-> Opinionated Next.js + NestJS full-stack project scaffold — zero config, one command.
-
-A production-ready CLI tool that bootstraps a modern full-stack application with **Next.js 15 (App Router)** frontend and **NestJS** backend, preconfigured with industry-standard libraries, sensible defaults, and clean separation of concerns.
+A Production-Ready CLI Tool that bootstraps a Modern Full-Stack Application with **NextJS Latest (App Router)** Frontend and **NestJS** Backend, Preconfigured with Industry-Standard Libraries, Sensible Defaults, and Clean Separation of Concerns.
 
 ```bash
 npx nexstjs my-app
@@ -33,68 +31,68 @@ npx nexstjs my-app
 ### Frontend Stack
 
 **Core Framework**
-- Next.js (latest with App Router)
+- NextJS (Latest with App Router)
 - TypeScript
 - ESLint + Prettier
-- Tailwind CSS
+- TailwindCSS
 
 **UI Components**
-- Shadcn UI (Slate theme)
-- Preinstalled components: dialog, alert, badge, avatar, dropdown, skeleton, breadcrumb, kbd, label, pagination, field, textarea, tooltip, select, separator
-- Lucide React icons
+- ShadcnUI (Slate Theme)
+- Preinstalled Components - dialog, alert, badge, avatar, dropdown, skeleton, breadcrumb, kbd, label, pagination, field, textarea, tooltip, select, separator
+- Lucide React Icons
 
 **Animation & Motion**
-- GSAP (timeline animations)
-- Framer Motion (component animations)
-- Lenis (smooth scroll)
-- Lottie React (JSON animations)
-- Three.js + @react-three/drei (3D graphics)
+- GSAP (Timeline Animations)
+- Framer Motion (Component Animations)
+- Lenis (Smooth Scroll)
+- Lottie React (JSON Animations)
+- Three.js + @react-three/drei (3D Graphics)
 
 **Data Management**
 - Axios (HTTP client)
-- TanStack Query (server state)
-- React Hook Form (form state)
-- Zod (schema validation)
+- TanStack Query (Server State)
+- React Hook Form (Form State)
+- Zod (Schema Validation)
 
 **Utilities**
-- clsx + tailwind-merge (class management)
-- date-fns (date utilities)
-- sonner (toast notifications)
-- @t3-oss/env-nextjs (type-safe env variables)
+- clsx + tailwind-merge (Class Management)
+- date-fns (Date Utilities)
+- sonner (Toast Notifications)
+- @t3-oss/env-nextjs (Type-Safe Env Variables)
 
 ### Backend Stack
 
 **Core Framework**
-- NestJS (latest)
+- NestJS (Latest)
 - TypeScript
 - ESLint + Prettier
 
 **Security & Middleware**
-- Helmet (security headers)
-- Cookie Parser (cookie handling)
-- @nestjs/throttler (rate limiting)
+- Helmet (Security Headers)
+- Cookie Parser (Cookie Handling)
+- @nestjs/throttler (Rate Limiting)
 
 **Authentication & Authorization**
-- Passport.js integration
+- Passport.js Integration
 - @nestjs/passport
-- @nestjs/jwt (JWT strategy)
-- Argon2 (password hashing)
+- @nestjs/jwt (JWT Strategy)
+- Argon2 (Password Hashing)
 
 **Validation & Configuration**
-- class-validator (DTO validation)
-- class-transformer (object transformation)
-- @nestjs/config (env management)
+- class-validator (DTO Validation)
+- class-transformer (Object Transformation)
+- @nestjs/config (Env Management)
 
 **API & Documentation**
 - @nestjs/swagger (OpenAPI/Swagger)
-- Multer (file uploads)
+- Multer (File Uploads)
 
 **Database**
 - Prisma ORM
 - @prisma/client
 
 **External Services**
-- @supabase/supabase-js (Supabase integration)
+- @supabase/supabase-js (Supabase Integration)
 
 ---
 
@@ -102,7 +100,7 @@ npx nexstjs my-app
 
 ### Basic Usage
 
-**With pnpm (recommended)**
+**With pnpm (Recommended)**
 ```bash
 npx nexstjs my-app
 cd my-app
@@ -116,7 +114,7 @@ cd my-app
 
 ### Running Development Servers
 
-After scaffolding, run both servers:
+After Scaffolding, Run Both Servers:
 
 **Terminal 1 - Frontend**
 ```bash
@@ -132,7 +130,7 @@ pnpm -C backend start:dev
 npm --prefix backend run start:dev
 ```
 
-Your application will be available at:
+Your Application Will be Available at:
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:3001` (or as configured)
 
@@ -140,34 +138,34 @@ Your application will be available at:
 
 ## Project Structure
 
-The generated project follows a clean separation between frontend and backend:
+The Generated Project Follows a Clean Separation Between Frontend and Backend:
 
 ```
 my-app/
 ├── frontend/
-│   ├── app/                 # Next.js App Router pages
-│   ├── components/          # React components
-│   │   └── ui/              # Shadcn UI components
-│   ├── lib/                 # Utilities and helpers
-│   ├── public/              # Static assets
-│   ├── styles/              # Global styles
-│   ├── .eslintrc.json       # ESLint configuration
-│   ├── tailwind.config.ts   # Tailwind configuration
-│   ├── tsconfig.json        # TypeScript configuration
-│   └── package.json         # Frontend dependencies
+│   ├── app/                 # NextJS App Router Pages
+│   ├── components/          # React Components
+│   │   └── ui/              # ShadcnUI Components
+│   ├── lib/                 # Utilities and Helpers
+│   ├── public/              # Static Assets
+│   ├── styles/              # Global Styles
+│   ├── .eslintrc.json       # ESLint Configuration
+│   ├── tailwind.config.ts   # Tailwind Configuration
+│   ├── tsconfig.json        # TypeScript Configuration
+│   └── package.json         # Frontend Dependencies
 │
 ├── backend/
 │   ├── src/
-│   │   ├── main.ts          # Application entry point
-│   │   ├── app.module.ts    # Root module
-│   │   └── ...              # Your modules, controllers, services
+│   │   ├── main.ts          # Application Entry Point
+│   │   ├── app.module.ts    # Root Module
+│   │   └── ...              # Your Modules, Controllers, Services
 │   ├── prisma/
-│   │   └── schema.prisma    # Prisma schema
-│   ├── .eslintrc.js         # ESLint configuration
-│   ├── tsconfig.json        # TypeScript configuration
-│   └── package.json         # Backend dependencies
+│   │   └── schema.prisma    # Prisma Schema
+│   ├── .eslintrc.js         # ESLint Configuration
+│   ├── tsconfig.json        # TypeScript Configuration
+│   └── package.json         # Backend Dependencies
 │
-└── package.json             # Root-level scripts
+└── package.json             # Root-Level Scripts
 ```
 
 ---
@@ -182,17 +180,17 @@ my-app/
 
 ### Examples
 
-**Specify package manager**
+**Specify Package Manager**
 ```bash
 npx nexstjs my-app --pm npm
 ```
 
-**Non-interactive mode (CI/CD)**
+**Non-Interactive Mode (CI/CD)**
 ```bash
 npx nexstjs my-app --no-ux
 ```
 
-**Combine options**
+**Combine Options**
 ```bash
 npx nexstjs my-app --pm npm --no-ux
 ```
@@ -201,7 +199,7 @@ npx nexstjs my-app --pm npm --no-ux
 
 ## Interactive Mode
 
-By default, the CLI runs in **interactive mode** with the following prompts:
+By Default, the CLI Runs in **Interactive Mode** with the Following Prompts:
 
 ### 1. Start Confirmation
 ```
@@ -222,19 +220,19 @@ Confirms whether to proceed with project generation.
   > @/*
     No Alias
 ```
-Configures TypeScript path mapping for imports.
+Configures TypeScript Path Mapping for Imports.
 
 **With `@/*`:**
 ```typescript
 import { Button } from '@/components/ui/button'
 ```
 
-**Without alias:**
+**Without Alias:**
 ```typescript
 import { Button } from '../components/ui/button'
 ```
 
-To skip all prompts, use `--no-ux` flag.
+To Skip All Prompts, Use `--no-ux` flag.
 
 ---
 
@@ -242,14 +240,14 @@ To skip all prompts, use `--no-ux` flag.
 
 ### pnpm (Recommended)
 
-Fast, efficient, and disk-space friendly.
+Fast, Efficient, and Disk-Space Friendly.
 
 **Installation**
 ```bash
 # Via npm
 npm install -g pnpm
 
-# Via corepack (Node 16.13+)
+# Via Corepack (Node 16.13+)
 corepack enable
 ```
 
@@ -274,27 +272,27 @@ npx nexstjs my-app --pm npm
 ### Why These Libraries?
 
 **GSAP + Framer Motion**
-- GSAP for complex timeline animations
-- Framer Motion for declarative React animations
+- GSAP for Complex Timeline Animations
+- Framer Motion for Declarative React Animations
 
 **TanStack Query**
-- Declarative data fetching
-- Automatic caching and background refetching
-- Optimistic updates
+- Declarative Data Fetching
+- Automatic Caching and Background Refetching
+- Optimistic Updates
 
 **React Hook Form + Zod**
-- Performant form state management
-- Type-safe validation schemas
-- Minimal re-renders
+- Performant Form State Management
+- Type-Safe Validation Schemas
+- Minimal Re-renders
 
 **Prisma**
-- Type-safe database client
-- Auto-generated types
-- Migration management
+- Type-Safe Database Client
+- Auto-Generated Types
+- Migration Management
 
 **Argon2**
-- More secure than bcrypt
-- Resistant to GPU cracking attacks
+- More Secure Than Bcrypt
+- Resistant to GPU Cracking Attacks
 
 ---
 
@@ -305,16 +303,16 @@ npx nexstjs my-app --pm npm
 ```bash
 cd frontend
 
-# Start dev server
+# Start Dev Server
 pnpm dev
 
-# Build for production
+# Build for Production
 pnpm build
 
 # Lint
 pnpm lint
 
-# Add new Shadcn component
+# Add New Shadcn Component
 pnpm shadcn add button
 ```
 
@@ -323,16 +321,16 @@ pnpm shadcn add button
 ```bash
 cd backend
 
-# Start dev server
+# Start Dev Server
 pnpm start:dev
 
 # Build
 pnpm build
 
-# Run in production
+# Run in Production
 pnpm start:prod
 
-# Prisma commands
+# Prisma Commands
 npx prisma generate
 npx prisma migrate dev
 npx prisma studio
@@ -358,42 +356,42 @@ JWT_SECRET="your-secret-key"
 ### Core Principles
 
 1. **Opinionated, but practical**
-   - Curated libraries that work well together
-   - Proven patterns from real-world projects
-   - Reasonable defaults, easy to customize
+   - Curated Libraries That Work Well Together
+   - Proven Patterns from Real-World Projects
+   - Reasonable Defaults, Easy to Customize
 
 2. **Latest-first approach**
-   - Always installs latest versions
-   - No locked templates
-   - Stay up-to-date with ecosystem
+   - Always Installs Latest Versions
+   - No Locked Templates
+   - Stay Up-to-Date with Ecosystem
 
 3. **Quiet by default**
-   - Clean, minimal CLI output
-   - Spinners for long-running operations
-   - Only show what matters
+   - Clean, Minimal CLI Output
+   - Spinners for Long-Running Operations
+   - Only Show What Matters
 
-4. **No monorepo complexity**
-   - Simple folder structure
-   - Independent frontend/backend
-   - Easy to understand and modify
+4. **No Monorepo Complexity**
+   - Simple Folder Structure
+   - Independent Frontend/Backend
+   - Easy to Understand and Modify
 
-5. **Production-ready foundation**
-   - Security best practices
-   - Type safety throughout
-   - Ready for deployment
+5. **Production-Ready Foundation**
+   - Security Best Practices
+   - Type Safety Throughout
+   - Ready for Deployment
 
 ### Who Is This For?
 
 **Ideal for:**
-- Developers starting new full-stack projects
-- Teams wanting consistent project setup
-- Solo developers who value speed
-- Prototypes that need to scale
+- Developers Starting New Full-Stack Projects
+- Teams Wanting Consistent Project Setup
+- Solo Developers Who Value Speed
+- Prototypes That Need to Scale
 
 **Not ideal for:**
-- Projects requiring specific versions
-- Highly customized build pipelines
-- Existing projects (migration tool)
+- Projects Requiring Specific Versions / Deps
+- Highly Customized Build Pipelines
+- Existing Projects (Migration Tool)
 
 ---
 
@@ -404,20 +402,20 @@ JWT_SECRET="your-secret-key"
 If you see `pnpm is not installed`:
 
 ```bash
-# Option 1: Install globally
+# Option 1: Install Globally
 npm install -g pnpm
 
-# Option 2: Enable corepack (Node 16.13+)
+# Option 2: Enable Corepack (Node 16.13+)
 corepack enable
 ```
 
-### Port already in use
+### Port Already in Use
 
 If ports 3000 or 3001 are occupied:
 
 **Frontend**
 ```bash
-# Use different port
+# Use Different Port
 PORT=3002 pnpm dev
 ```
 
@@ -427,9 +425,9 @@ Edit `backend/src/main.ts`:
 await app.listen(3002);
 ```
 
-### Shadcn components not found
+### Shadcn Components Not Found
 
-Ensure shadcn CLI is installed:
+Ensure Shadcn CLI is Installed:
 ```bash
 cd frontend
 pnpm add -D shadcn@latest
@@ -437,7 +435,7 @@ pnpm add -D shadcn@latest
 
 ### TypeScript errors after scaffolding
 
-Run type checking to see specific errors:
+Run Type Checking to See Specific Errors:
 ```bash
 cd frontend && pnpm tsc --noEmit
 cd backend && pnpm tsc --noEmit
@@ -445,7 +443,7 @@ cd backend && pnpm tsc --noEmit
 
 ### Prisma client generation
 
-After modifying `prisma/schema.prisma`:
+After Modifying `prisma/schema.prisma`:
 ```bash
 cd backend
 npx prisma generate
@@ -458,51 +456,46 @@ npx prisma migrate dev
 
 ### System Requirements
 
-- **Node.js**: 18.x or higher (22.x recommended)
+- **Node.js**: 18.x or Higher (22.x Recommended)
 - **Package Manager**: pnpm 8+ or npm 9+
 - **OS**: Linux, macOS, Windows (WSL2)
 
-### Disk Space
-
-- CLI tool: ~50 MB
-- Generated project: ~600 MB (with node_modules)
-
 ### Network
 
-Stable internet connection required for:
-- Downloading dependencies
-- Shadcn component registry
-- Next.js/NestJS CLI tools
+Stable Internet Connection Required for:
+- Downloading Dependencies
+- ShadcnUI Component Registry
+- NextJS/NestJS CLI Tools
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions Are Welcome! Here's How You Can Help:
 
 ### Reporting Issues
 
 When reporting bugs, please include:
-- Node.js version (`node -v`)
-- Package manager and version (`pnpm -v` or `npm -v`)
-- OS and version
-- Full error output
-- Steps to reproduce
+- Node.js Version (`node -v`)
+- Package Manager and Version (`pnpm -v` or `npm -v`)
+- OS and Version
+- Full Error Output
+- Steps to Reproduce
 
 ### Feature Requests
 
-Open an issue describing:
-- The problem you're trying to solve
-- Why existing solutions don't work
-- Proposed API/usage
+Open an Issue Describing:
+- The Problem You're Trying to Solve
+- Why Existing Solutions Don't Work
+- Proposed API/Usage
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit PR with clear description
+1. Fork the Repository
+2. Create a Feature Branch
+3. Make Your changes
+4. Test Thoroughly
+5. Submit PR with Clear Description
 
 **Development Setup**
 ```bash
@@ -513,10 +506,10 @@ pnpm install
 
 **Testing Changes**
 ```bash
-# Link CLI locally
+# Link CLI Locally
 pnpm link --global
 
-# Test in a new directory
+# Test in a New Directory
 cd /tmp
 nexstjs test-project
 ```
@@ -525,26 +518,19 @@ nexstjs test-project
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history and breaking changes.
+See [CHANGELOG.md](CHANGELOG.md) for Version History and Breaking Changes.
 
 ---
 
 ## Roadmap
 
 **Planned Features**
-- [ ] Docker Compose setup
-- [ ] GitHub Actions CI/CD templates
-- [ ] Database seeding utilities
-- [ ] Testing setup (Jest, Playwright)
-- [ ] More Shadcn theme presets
-- [ ] Vercel/Railway deployment configs
-
-**Community Requests**
-- [ ] MongoDB support option
-- [ ] GraphQL setup variant
-- [ ] i18n configuration
-- [ ] PWA setup
-
+- [ ] Docker Compose Setup
+- [ ] GitHub Actions CI/CD Templates
+- [ ] Database Seeding Utilities
+- [ ] Testing Setup (Jest, Playwright)
+- [ ] More Shadcn Theme Presets
+- [ ] Vercel/Railway Deployment Configs
 ---
 
 ## Credits
@@ -555,24 +541,23 @@ Built with:
 - [Shadcn UI](https://ui.shadcn.com/) by shadcn
 - [Prisma](https://www.prisma.io/) by Prisma
 - [TanStack Query](https://tanstack.com/query) by Tanner Linsley
+- etc
 
-Special thanks to the open-source community for these amazing tools.
+Special Thanks to The Open-Source Community for These Amazing Tools.
 
 ---
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE) File for Details.
 
-**TL;DR:** You can use this tool commercially, modify it, and distribute it. Attribution appreciated but not required.
+**TL;DR:** You Can Use This Tool Commercially, Modify it, and Distribute it. Attribution Appreciated but Not Required.
 
 ---
 
 ## Author
 
 **Muhammad Alif**
-
-Full-stack developer passionate about developer experience and modern web technologies.
 
 - GitHub: [@aldevvv](https://github.com/aldevvv)
 - LinkedIn: [mhdalif-id](https://www.linkedin.com/in/mhdalif-id/)
@@ -582,14 +567,14 @@ Full-stack developer passionate about developer experience and modern web techno
 
 ## Support
 
-If this tool saves you time:
+If This Tool Saves You Time:
 
-**Give it a star** on GitHub
+**Give It a Star** on GitHub
 
-**Share with your team** - Help others discover it
+**Share WIth Your Team** - Help Others Discover It
 
-**Provide feedback** - Open issues or discussions
+**Provide Feedback** - Open Issues or Discussions
 
-**Sponsor** - Consider sponsoring if this becomes part of your workflow
+**Sponsor** - Consider Sponsoring If This Becomes Part of Your Workflow
 
-Built with care for the developer community.
+Built With Love for The Developer Community.
