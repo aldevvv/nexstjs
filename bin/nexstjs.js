@@ -15,14 +15,15 @@ program
   .name("nexstjs")
   .argument("<project-name>")
   .option("--pm <pm>", "package manager: pnpm|npm", "pnpm")
-  .option("--no-ux", "disable interactive UI")
-  .option("--no-alias", "disable import alias (@/*)")
+  .option("--no-ux", "use deterministic non-interactive preset")
+  .option("--no-alias", "do not pass a custom import alias in the preset")
   .parse()
 
 const projectName = program.args[0]
 const opts = program.opts()
 const pm = opts.pm
 const useAlias = opts.alias !== false
+const useInteractiveUpstreamPrompts = opts.ux !== false
 
 const root = path.resolve(process.cwd(), projectName)
 const feDir = path.join(root, "frontend")
@@ -31,18 +32,70 @@ const beDir = path.join(root, "backend")
 const FRONTEND_PORT = 3000
 const BACKEND_PORT = 4000
 const IMPORT_ALIAS = "@/*"
+const SUPPORTED_PACKAGE_MANAGERS = ["pnpm", "npm"]
 
-async function sh(cmd, args, cwd, hideOutput = false) {
-  const options = { 
-    cwd, 
-    stdio: hideOutput ? "pipe" : "inherit",
-    env: hideOutput ? { 
-      ...process.env, 
-      npm_config_loglevel: "error",
-      PNPM_REPORTER: "silent"
-    } : { ...process.env }
+function quoteArg(arg) {
+  if (/^[a-zA-Z0-9@%_+=:,./*-]+$/.test(arg)) {
+    return arg
   }
-  await execa(cmd, args, options)
+
+  return JSON.stringify(arg)
+}
+
+function formatCommand(cmd, args) {
+  return [cmd, ...args].map(quoteArg).join(" ")
+}
+
+function commandEnv(stdio) {
+  if (stdio === "inherit") {
+    return { ...process.env }
+  }
+
+  return {
+    ...process.env,
+    npm_config_loglevel: "error",
+    PNPM_REPORTER: "silent"
+  }
+}
+
+async function sh(cmd, args, cwd, { stdio = useInteractiveUpstreamPrompts ? "inherit" : "pipe" } = {}) {
+  const options = {
+    cwd,
+    stdio,
+    env: commandEnv(stdio)
+  }
+
+  try {
+    await execa(cmd, args, options)
+  } catch (e) {
+    const output = [e.stdout, e.stderr].filter(Boolean).join("\n").trim()
+    const message = [
+      `Command failed: ${formatCommand(cmd, args)}`,
+      `Working directory: ${cwd}`,
+      output ? `Output:\n${output}` : e.message
+    ].join("\n\n")
+
+    throw new Error(message, { cause: e })
+  }
+}
+
+function remoteCliCommand(pkg, args) {
+  if (pm === "pnpm") {
+    return {
+      cmd: "pnpm",
+      args: ["dlx", pkg, ...args]
+    }
+  }
+
+  return {
+    cmd: "npx",
+    args: ["--yes", pkg, ...args]
+  }
+}
+
+async function runRemoteCli(pkg, args, cwd, options) {
+  const command = remoteCliCommand(pkg, args)
+  await sh(command.cmd, command.args, cwd, options)
 }
 
 function clickableLink(text, url) {
@@ -74,7 +127,21 @@ function banner() {
   console.log("")
 }
 
-async function step(label, fn) {
+async function step(label, fn, { spinner = !useInteractiveUpstreamPrompts } = {}) {
+  if (!spinner) {
+    console.log(chalk.greenBright("▸ ") + chalk.bold(label))
+
+    try {
+      const res = await fn()
+      console.log(chalk.greenBright("✓ ") + chalk.hex("#00ff41")(label))
+      console.log("")
+      return res
+    } catch (e) {
+      console.log(chalk.red("✗ ") + chalk.dim(label))
+      throw e
+    }
+  }
+
   const sp = ora({
     text: label,
     spinner: "dots12",
@@ -116,6 +183,14 @@ async function run() {
     process.exit(1)
   }
 
+  if (!SUPPORTED_PACKAGE_MANAGERS.includes(pm)) {
+    console.log("")
+    console.log(chalk.red.bold("✗ ERROR: ") + chalk.dim(`Unsupported package manager: ${pm}`))
+    console.log(chalk.dim("  Supported package managers: ") + chalk.hex("#00ff41")(SUPPORTED_PACKAGE_MANAGERS.join(", ")))
+    console.log("")
+    process.exit(1)
+  }
+
   const pmInstalled = await checkPackageManager(pm)
   if (!pmInstalled) {
     console.log("")
@@ -144,7 +219,7 @@ async function run() {
   }
 
   const usePnpm = pm === "pnpm"
-  const pmArgs = usePnpm ? ["--use-pnpm"] : ["--use-npm"]
+  const nextPackageManagerArg = usePnpm ? "--use-pnpm" : "--use-npm"
 
   const useSrcDir = true
   const importAlias = useAlias ? IMPORT_ALIAS : ""
@@ -166,32 +241,25 @@ async function run() {
   await fs.ensureDir(root)
 
   await step("Creating NextJS App in Frontend", async () => {
-    const args = [
-      "create-next-app@latest",
-      "frontend",
-      "--ts",
-      "--eslint",
-      "--tailwind",
-      "--app",
-      "--yes",
-      ...pmArgs
-    ]
+    const args = ["frontend", nextPackageManagerArg]
 
-    if (useSrcDir) args.push("--src-dir")
-    if (importAlias) args.push("--import-alias", importAlias)
+    if (useInteractiveUpstreamPrompts) {
+      args.push("--reset-preferences")
+    } else {
+      args.push("--ts", "--eslint", "--tailwind", "--app", "--yes")
+      if (useSrcDir) args.push("--src-dir")
+      if (importAlias) args.push("--import-alias", importAlias)
+    }
 
-    await sh("npx", args, root, true)
+    await runRemoteCli("create-next-app@latest", args, root)
   })
 
-  await step("Installing ShadcnUI CLI", async () => {
-    await sh(pm, ["add", "-D", "shadcn@latest"], feDir, true)
-  })
+  await step("Initializing shadcn/ui", async () => {
+    const shadcnArgs = useInteractiveUpstreamPrompts
+      ? ["init"]
+      : ["init", "--yes", "--defaults"]
 
-  await step("Initializing ShadcnUI (Slate)", async () => {
-    const shadcnArgs = usePnpm 
-      ? ["exec", "shadcn", "init", "--yes", "--base-color", "slate"]
-      : ["shadcn", "init", "--yes", "--base-color", "slate"]
-    await sh(usePnpm ? "pnpm" : "npx", shadcnArgs, feDir, true)
+    await runRemoteCli("shadcn@latest", shadcnArgs, feDir)
   })
 
   const shadcnComponents = [
@@ -216,10 +284,11 @@ async function run() {
   ]
 
   await step("Adding ShadcnUI Components", async () => {
-    const shadcnArgs = usePnpm
-      ? ["exec", "shadcn", "add", "--yes", ...shadcnComponents]
-      : ["shadcn", "add", "--yes", ...shadcnComponents]
-    await sh(usePnpm ? "pnpm" : "npx", shadcnArgs, feDir, true)
+    const shadcnArgs = useInteractiveUpstreamPrompts
+      ? ["add", ...shadcnComponents]
+      : ["add", "--yes", ...shadcnComponents]
+
+    await runRemoteCli("shadcn@latest", shadcnArgs, feDir)
   })
 
   const feDeps = [
@@ -242,16 +311,24 @@ async function run() {
   ]
 
   await step("Installing Frontend Deps", async () => {
-    await sh(pm, ["add", ...feDeps], feDir, true)
+    await sh(pm, ["add", ...feDeps], feDir)
   })
 
   await step("Creating NestJS App in Backend", async () => {
-    await sh("npx", ["@nestjs/cli@latest", "new", "backend", "--package-manager", pm, "--skip-git", "--skip-install"], root, true)
+    const nestArgs = ["new", "backend", "--package-manager", pm, "--skip-git"]
+
+    if (!useInteractiveUpstreamPrompts) {
+      nestArgs.push("--skip-install")
+    }
+
+    await runRemoteCli("@nestjs/cli@latest", nestArgs, root)
   })
 
-  await step("Installing Backend Base Dependencies", async () => {
-    await sh(pm, ["install"], beDir, true)
-  })
+  if (!useInteractiveUpstreamPrompts) {
+    await step("Installing Backend Base Dependencies", async () => {
+      await sh(pm, ["install"], beDir)
+    })
+  }
 
   const beDeps = [
     "helmet@latest",
@@ -273,12 +350,17 @@ async function run() {
   ]
 
   await step("Installing Backend Deps", async () => {
-    await sh(pm, ["add", ...beDeps], beDir, true)
-    await sh(pm, ["add", "-D", "@types/cookie-parser", "@types/multer"], beDir, true)
+    await sh(pm, ["add", ...beDeps], beDir)
+    await sh(pm, ["add", "-D", "@types/cookie-parser", "@types/multer"], beDir)
   })
 
   await step("Initializing Prisma", async () => {
-    await sh("npx", ["prisma", "init"], beDir, true)
+    if (usePnpm) {
+      await sh("pnpm", ["exec", "prisma", "init"], beDir)
+      return
+    }
+
+    await sh("npx", ["--yes", "prisma", "init"], beDir)
   })
 
   await step("Configuring Backend Port", async () => {

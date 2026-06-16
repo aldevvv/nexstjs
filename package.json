@@ -1,16 +1,20 @@
 {
   "name": "nexstjs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Next.js + NestJS scaffold with shadcn/ui and opinionated deps",
   "type": "module",
   "bin": {
     "nexstjs": "bin/nexstjs.js"
   },
   "files": [
-    "bin"
+    "bin",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "dev": "node bin/nexstjs.js demo-app"
+  },
+  "engines": {
+    "node": ">=20.12"
   },
   "keywords": [
     "nextjs",
@@ -23,13 +27,13 @@
   "author": "@mhdalif.id",
   "license": "MIT",
   "dependencies": {
-    "@inquirer/prompts": "^7.0.1",
-    "boxen": "^7.1.1",
-    "chalk": "^5.4.1",
+    "@inquirer/prompts": "^8.1.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
     "commander": "^14.0.2",
     "execa": "^9.6.1",
-    "figlet": "^1.8.0",
+    "figlet": "^1.9.4",
     "fs-extra": "^11.3.2",
-    "ora": "^8.2.0"
+    "ora": "^9.0.0"
   }
 }

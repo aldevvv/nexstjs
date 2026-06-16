@@ -44,3 +44,10 @@ build/
 # Misc
 .turbo
 .npmrc
+
+# Agents
+.agents
+.codex
+.vscode
+.claude
+.letta

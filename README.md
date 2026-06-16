@@ -1,8 +1,8 @@
 # nexstjs
 
-> Opinionated NextJS + NestJS Full-Stack Scaffold — Zero Config, One Command, Production Ready.
+> Opinionated NextJS + NestJS Full-Stack Scaffold — Guided Setup, One Command, Production Ready.
 
-A deterministic CLI tool that bootstraps a modern full-stack application with **Next.js (App Router)** frontend and **NestJS** backend. Preconfigured with industry-standard libraries, standardized ports, and environment contracts designed for automated VPS deployment.
+A guided CLI tool that bootstraps a modern full-stack application with **Next.js** frontend and **NestJS** backend. By default it shows the live upstream prompts from Next.js and shadcn/ui, while `--no-ux` keeps a deterministic preset for CI and automation.
 
 ```bash
 npx nexstjs my-app
@@ -14,11 +14,12 @@ npm run dev
 
 ## Features
 
-### Deterministic Scaffolding
+### Guided Scaffolding
 
-- **Zero interactive prompts** for project structure (use `--no-ux` to skip all prompts)
-- **src/ directory always enabled** for Next.js
-- **Import alias (@/*) enabled by default** (disable with `--no-alias`)
+- **Upstream prompts shown by default** for Next.js and shadcn/ui options
+- **Deterministic automation mode** with `--no-ux`
+- **src/ directory enabled** in the `--no-ux` preset
+- **Import alias (@/*) enabled** in the `--no-ux` preset
 - **Standardized ports**: Frontend (3000), Backend (4000)
 - **Production-ready environment templates** auto-generated
 - **Deployment contract file** (`nexst.json`) for automated tooling
@@ -26,13 +27,12 @@ npm run dev
 ### Frontend Stack
 
 **Core Framework**
-- Next.js (Latest with App Router)
-- TypeScript with `@/*` path mapping
-- ESLint + TailwindCSS
-- Always uses `src/` directory structure
+- Next.js latest
+- TypeScript, ESLint, TailwindCSS, App Router, `src/`, and `@/*` alias in the `--no-ux` preset
+- Interactive mode follows your answers in the upstream Next.js CLI
 
 **UI & Components**
-- ShadcnUI (Slate theme) with 17+ preinstalled components
+- shadcn/ui with live upstream init options and 17+ preinstalled components
 - Lucide React icons
 
 **Animation & Motion**
@@ -168,8 +168,8 @@ cp backend/.env.example backend/.env
 |------------------|----------|-----------------------------------|----------|
 | `<project-name>` | required | Project folder name               | -        |
 | `--pm`           | optional | Package manager (`pnpm` or `npm`) | `pnpm`   |
-| `--no-ux`        | flag     | Skip all interactive prompts      | `false`  |
-| `--no-alias`     | flag     | Disable import alias (@/*)        | `false`  |
+| `--no-ux`        | flag     | Use deterministic non-interactive preset | `false`  |
+| `--no-alias`     | flag     | Do not pass a custom import alias in the preset | `false`  |
 
 ### Examples
 
@@ -456,7 +456,7 @@ Built-in with Node.js, works out of the box.
 
 ### System Requirements
 
-- **Node.js**: 18.x or higher (20.x recommended)
+- **Node.js**: 20.12 or higher
 - **Package Manager**: pnpm 8+ or npm 9+
 - **OS**: Linux, macOS, Windows (WSL2)
 
