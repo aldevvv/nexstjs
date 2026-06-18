@@ -225,7 +225,17 @@ async function run() {
   const importAlias = useAlias ? IMPORT_ALIAS : ""
 
   if (opts.ux) {
-    console.log(chalk.greenBright("🚀 Starting Scaffold..."))
+    const startConfirm = await confirm({ 
+      message: chalk.greenBright("Start Scaffolding Your Project?"), 
+      default: true 
+    })
+    
+    if (!startConfirm) {
+      console.log("")
+      console.log(chalk.yellow("⚠ Scaffolding Cancelled"))
+      console.log("")
+      process.exit(0)
+    }
   }
 
   await fs.ensureDir(root)
@@ -242,6 +252,25 @@ async function run() {
     }
 
     await runRemoteCli("create-next-app@latest", args, root)
+
+    if (!await fs.pathExists(feDir)) {
+      if (useInteractiveUpstreamPrompts) {
+        console.log("")
+        console.log(chalk.yellow("⚠ Interactive mode did not create the frontend directory."))
+        console.log(chalk.dim("  Retrying with default preset..."))
+        console.log("")
+
+        const fallbackArgs = ["frontend", nextPackageManagerArg, "--ts", "--eslint", "--tailwind", "--app", "--yes"]
+        if (useSrcDir) fallbackArgs.push("--src-dir")
+        if (importAlias) fallbackArgs.push("--import-alias", importAlias)
+
+        await runRemoteCli("create-next-app@latest", fallbackArgs, root, { stdio: "pipe" })
+      }
+
+      if (!await fs.pathExists(feDir)) {
+        throw new Error("create-next-app finished but the frontend directory was not created.")
+      }
+    }
   })
 
   await step("Initializing shadcn/ui", async () => {
