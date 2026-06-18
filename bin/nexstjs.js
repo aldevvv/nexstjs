@@ -80,7 +80,9 @@ async function sh(cmd, args, cwd, { stdio = useInteractiveUpstreamPrompts ? "inh
 }
 
 function remoteCliCommand(pkg, args) {
-  if (pm === "pnpm") {
+  const isWindows = process.platform === "win32"
+
+  if (pm === "pnpm" && !isWindows) {
     return {
       cmd: "pnpm",
       args: ["dlx", pkg, ...args]
