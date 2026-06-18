@@ -51,3 +51,6 @@ build/
 .vscode
 .claude
 .letta
+
+# Test scripts
+test-stdin.js

@@ -225,17 +225,7 @@ async function run() {
   const importAlias = useAlias ? IMPORT_ALIAS : ""
 
   if (opts.ux) {
-    const startConfirm = await confirm({ 
-      message: chalk.greenBright("Start Scaffolding Your Project?"), 
-      default: true 
-    })
-    
-    if (!startConfirm) {
-      console.log("")
-      console.log(chalk.yellow("⚠ Scaffolding Cancelled"))
-      console.log("")
-      process.exit(0)
-    }
+    console.log(chalk.greenBright("🚀 Starting Scaffold..."))
   }
 
   await fs.ensureDir(root)
