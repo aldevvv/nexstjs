@@ -24,7 +24,19 @@
     "shadcn",
     "fullstack"
   ],
-  "author": "@mhdalif.id",
+  "author": {
+    "name": "Muhammad Alif",
+    "email": "mhdalif.id@gmail.com",
+    "url": "https://www.mhdalif.id"
+  },
+  "homepage": "https://www.mhdalif.id/projects/nexstjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aldevvv/nexstjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aldevvv/nexstjs/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",
